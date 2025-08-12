@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合ゲームトーナメントルール</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;600;800&family=Press+Start+2P&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Global & Navigation Styles --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111; /* Default background */
+        }
+
+        #main-navigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 15px 0;
+            text-align: center;
+            z-index: 1000;
+            border-bottom: 2px solid #444;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        #main-navigation:hover {
+            opacity: 1;
+        }
+
+        #main-navigation a {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            color: #eee;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        #main-navigation a:hover,
+        #main-navigation a.active {
+            background-color: #D62828;
+            color: #fff;
+        }
+
+        /* --- Page Switching Logic --- */
+        .game-rules-page {
+            display: none;
+            padding-top: 80px; /* Offset for fixed navbar */
+        }
+
+        .game-rules-page.active {
+            display: block;
+        }
+
+        /* --- Scoped Styles for Dota 2 --- */
+        #dota2 {
+            font-family: 'Roboto', sans-serif;
+            background: #111;
+            color: #e0e0e0;
+            line-height: 1.7;
+        }
+        #dota2 header {
+            min-height: 70vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(rgba(17, 17, 17, 0.75), rgba(17, 17, 17, 0.75)), url('https://scontent.fuln6-1.fna.fbcdn.net/v/t39.30808-6/489568594_10016563251742375_6939120322215768189_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=Tex-rd7ZuxYQ7kNvwE4u1Ii&_nc_oc=AdktSb7-pCVcQhPAjZOaXglkwS27wH1qhOp44lhYDXCWq5_UKhDZ2AA0nNwwD9393XM&_nc_zt=23&_nc_ht=scontent.fuln6-1.fna&_nc_gid=Kq398-9Bn341ksUYI8KdsA&oh=00_AfUcTqircmQSJYwqbvGtAewQGYwFpwqTtXgxQAcUcx3log&oe=68A0B948') center/cover no-repeat;
+            border-bottom: 4px solid #D62828;
+        }
+        #dota2 h1, #dota2 h2, #dota2 h3 { font-family: 'Cinzel', serif; font-weight: 700; }
+        #dota2 header h1, #dota2 header p { position: relative; text-shadow: 0 2px 8px rgba(0,0,0,0.8); z-index: 1; }
+        #dota2 header h1 { font-size: 4.5rem; margin: 0; color: #fff; text-transform: uppercase; }
+        #dota2 header p { font-size: 1.5rem; max-width: 700px; margin-top: 15px; color: #ccc; font-family: 'Roboto', sans-serif; }
+        #dota2 .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #dota2 section { margin-bottom: 40px; background: #1C1C1C; padding: 40px; border-radius: 8px; border-left: 5px solid #D62828; box-shadow: 0 8px 25px rgba(0,0,0,.5); transition: transform .3s ease, border-color .3s ease; }
+        #dota2 section:hover { border-left-color: #A2D97E; }
+        #dota2 section h2 { margin-top: 0; font-size: 2.2rem; color: #fff; padding-bottom: 15px; border-bottom: 2px solid #444; }
+        #dota2 ul, #dota2 ol { padding-left: 25px; }
+        #dota2 li { margin-bottom: 15px; }
+        #dota2 strong { color: #F7B733; }
+        #dota2 .win { color: #A2D97E; } #dota2 .draw { color: #F7B733; } #dota2 .loss { color: #D62828; }
+        #dota2 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #dota2 th, #dota2 td { border: 1px solid #444; padding: 12px; text-align: left; }
+        #dota2 th { background-color: #D62828; color: #fff; font-family: 'Cinzel', serif; font-size: 1.1rem; }
+        #dota2 tbody tr:nth-child(odd) { background-color: #222; }
+        #dota2 .tiebreaker-list { list-style-type: none; padding-left: 0; }
+        #dota2 .tiebreaker-list > li { background-color: rgba(0,0,0,0.2); padding: 20px; border-radius: 5px; border-left: 3px solid #F7B733; }
+        #dota2 .tiebreaker-list h4 { margin-top: 0; font-size: 1.2rem; color: #F7B733; }
+        #dota2 .tiebreaker-list ul { padding-left: 20px; }
+        #dota2 footer { padding: 40px 20px; text-align: center; color: #aaa; border-top: 4px solid #333; }
+        #dota2 .emoji-title { margin-right: 15px; vertical-align: middle; font-size: 2.2rem; }
+        @media(max-width:650px){
+            #dota2 header h1{font-size:2.8rem;} #dota2 header p{font-size: 1.2rem;}
+            #dota2 section { padding: 25px; } #dota2 section h2 { font-size: 1.8rem; }
+        }
+
+        /* --- Scoped Styles for CS2 --- */
+        #cs2 {
+            font-family: 'Roboto', sans-serif;
+            background: #121212;
+            color: #e0e0e0;
+        }
+        #cs2 header { min-height: 70vh; padding: 20px; background: linear-gradient(rgba(18, 18, 18, 0.7), rgba(18, 18, 18, 0.7)), url('https://cdn.akamai.steamstatic.com/apps/csgo/images/csgo_react/social/cs2.jpg') center/cover no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; border-bottom: 4px solid #4A90E2; }
+        #cs2 header::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.3); z-index: 0; }
+        #cs2 header h1, #cs2 header p { position: relative; color: #fff; z-index: 1; text-shadow: 0 0 12px rgba(0,0,0,0.9); }
+        #cs2 header h1 { font-size: 4.5rem; font-weight: 900; margin: 0; color: #FFFFFF; letter-spacing: 1px; text-transform: uppercase; }
+        #cs2 header p { font-size: 1.5rem; max-width: 700px; margin-top: 15px; font-weight: 400; color: #ccc; }
+        #cs2 .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #cs2 section { margin-bottom: 40px; background: #1e1e1e; padding: 40px; border-radius: 15px; border-left: 5px solid #4A90E2; box-shadow: 0 8px 25px rgba(0,0,0,.5); transition: transform .3s ease, box-shadow .3s ease; }
+        #cs2 section:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(74, 144, 226, 0.25); }
+        #cs2 section h2 { margin-top: 0; font-size: 2.2rem; color: #4A90E2; padding-bottom: 15px; border-bottom: 2px solid #444; font-weight: 700; }
+        #cs2 ul, #cs2 ol { padding-left: 25px; line-height: 1.8; font-size: 1.1rem; }
+        #cs2 li { margin-bottom: 12px; }
+        #cs2 strong { color: #F5A623; font-weight: 700; }
+        #cs2 .map-list { display: flex; flex-wrap: wrap; gap: 10px; list-style-type: none; padding-left: 0; }
+        #cs2 .map-list li { background-color: #333; padding: 8px 15px; border-radius: 8px; font-weight: 700; color: #eee; }
+        #cs2 footer { padding: 30px 20px; text-align: center; background: #111; color: #aaa; border-top: 2px solid #333; }
+        #cs2 .emoji-title { font-size: 2.5rem; margin-right: 15px; vertical-align: middle; }
+        #cs2 .veto-step { border-left: 3px solid #555; padding-left: 15px; margin-left: 5px; color: #ccc; }
+        #cs2 .veto-step .teamA { color: #4A90E2; font-weight: bold; }
+        #cs2 .veto-step .teamB { color: #F5A623; font-weight: bold; }
+        @media(max-width:650px){
+            #cs2 header h1{font-size:2.8rem;} #cs2 header p{font-size: 1.2rem;}
+            #cs2 section { padding: 25px; } #cs2 section h2 { font-size: 1.8rem; }
+        }
+
+        /* --- Scoped Styles for Ludo --- */
+        #ludo {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+        #ludo header { min-height: 75vh; padding: 20px; background: url('https://play-lh.googleusercontent.com/cJ-448ovtGs12hh6wxxw9B-EucZvr0J3ZYkv3Ab6ME5HLMjTG3mYR9mwav9RcS1w3w') center/contain no-repeat; background-color: #2c3e50; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; }
+        #ludo header::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.55); z-index: 0; }
+        #ludo header h1, #ludo header p { position: relative; color: #fff; z-index: 1; }
+        #ludo header h1 { font-size: 4.5rem; font-weight: 800; margin: 0; }
+        #ludo header p { font-size: 1.5rem; max-width: 700px; }
+        #ludo .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #ludo section { margin-bottom: 60px; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,.1); transition: transform .3s ease, box-shadow .3s ease; }
+        #ludo section:hover { transform: translateY(-6px); box-shadow: 0 12px 25px rgba(0,0,0,.16); }
+        #ludo section h2 { margin-top: 0; font-size: 2rem; color: #E74C3C; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        #ludo ul, #ludo ol { padding-left: 20px; line-height: 1.8; }
+        #ludo li { margin-bottom: 10px; }
+        #ludo footer { padding: 40px 20px; text-align: center; background: #E74C3C; color: #fff; }
+        #ludo .emoji-title { font-size: 2.5rem; margin-right: 15px; }
+        #ludo .scoring-diagram { display: flex; justify-content: space-around; align-items: center; margin-top: 30px; flex-wrap: wrap; gap: 20px; }
+        #ludo .diagram-column { background-color: #f9f9f9; border-radius: 12px; padding: 20px; text-align: center; width: 280px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        #ludo .diagram-column h3 { font-size: 1.2rem; margin-top: 0; color: #333; margin-bottom: 15px; }
+        #ludo .diagram-item { display: flex; justify-content: space-between; padding: 12px; margin-bottom: 8px; border-radius: 8px; font-weight: 600; }
+        #ludo .rank-1 { background-color: #FFD700; color: #333; }
+        #ludo .rank-2 { background-color: #C0C0C0; color: #333; }
+        #ludo .rank-etc { background-color: #f0f0f0; color: #666; }
+        #ludo .arrow { font-size: 3rem; color: #E74C3C; align-self: center; }
+        @media(max-width:650px){
+            #ludo header h1{font-size:2.8rem;} #ludo header p{font-size: 1.2rem;}
+            #ludo .scoring-diagram { flex-direction: column; }
+            #ludo .arrow { transform: rotate(90deg); margin: 15px 0; }
+        }
+
+        /* --- Scoped Styles for Mobile Legends --- */
+        #mobilelegends {
+            font-family: 'Roboto', sans-serif;
+            background: #1c142c;
+            color: #e0e0e0;
+        }
+        #mobilelegends header { min-height: 70vh; padding: 20px; background: linear-gradient(rgba(28, 20, 44, 0.7), rgba(28, 20, 44, 0.7)), url('https://kaleoz-media.seagmcdn.com/kaleoz-store/202407/oss-a2d7eb0b228031097472357bb332d7da.jpg?x-oss-process=image/format,webp') center/cover no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; border-bottom: 4px solid #6A5ACD; }
+        #mobilelegends header::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.3); z-index: 0; }
+        #mobilelegends header h1, #mobilelegends header p { position: relative; color: #fff; z-index: 1; text-shadow: 0 0 12px rgba(0,0,0,0.9); }
+        #mobilelegends header h1 { font-size: 4.5rem; font-weight: 900; margin: 0; color: #F8E7A3; letter-spacing: 1px; text-transform: uppercase; }
+        #mobilelegends header p { font-size: 1.5rem; max-width: 700px; margin-top: 15px; font-weight: 400; color: #ccc; }
+        #mobilelegends .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #mobilelegends section { margin-bottom: 40px; background: #2a2140; padding: 40px; border-radius: 15px; border-left: 5px solid #6A5ACD; box-shadow: 0 8px 25px rgba(0,0,0,.5); transition: transform .3s ease, box-shadow .3s ease; }
+        #mobilelegends section:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(106, 90, 205, 0.3); }
+        #mobilelegends section h2 { margin-top: 0; font-size: 2.2rem; color: #F8E7A3; padding-bottom: 15px; border-bottom: 2px solid #483D8B; font-weight: 700; }
+        #mobilelegends ul, #mobilelegends ol { padding-left: 25px; line-height: 1.8; font-size: 1.1rem; }
+        #mobilelegends li { margin-bottom: 12px; }
+        #mobilelegends strong { color: #F8E7A3; font-weight: 700; }
+        #mobilelegends .scoring-list { list-style-type: none; padding-left: 0; }
+        #mobilelegends .scoring-list li { background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 4px solid; font-size: 1.2rem; }
+        #mobilelegends .rank-1 { border-color: #FFD700; }
+        #mobilelegends .rank-2 { border-color: #C0C0C0; }
+        #mobilelegends footer { padding: 30px 20px; text-align: center; background: #110d1b; color: #aaa; border-top: 2px solid #333; }
+        #mobilelegends .emoji-title { font-size: 2.5rem; margin-right: 15px; vertical-align: middle; }
+        @media(max-width:650px){
+            #mobilelegends header h1{font-size:2.8rem;} #mobilelegends header p{font-size: 1.2rem;}
+            #mobilelegends section { padding: 25px; } #mobilelegends section h2 { font-size: 1.8rem; }
+        }
+
+        /* --- Scoped Styles for Tekken 7 --- */
+        #tekken {
+            font-family: 'Roboto', sans-serif;
+            background: #0c0c0c;
+            color: #e0e0e0;
+        }
+        #tekken header { min-height: 70vh; padding: 20px; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://p325k7wa.twic.pics/high/tekken/tekken-7/00-page-setup/t7_game-thumbnail.jpg?twic=v1/resize=760/step=10/quality=80') center/cover no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; border-bottom: 4px solid #D32F2F; }
+        #tekken header::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.3); z-index: 0; }
+        #tekken header h1, #tekken header p { position: relative; color: #fff; z-index: 1; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        #tekken header h1 { font-size: 4.5rem; font-weight: 900; margin: 0; color: #FFD700; letter-spacing: 2px; text-transform: uppercase; }
+        #tekken header p { font-size: 1.5rem; max-width: 700px; margin-top: 15px; font-weight: 400; }
+        #tekken .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #tekken section { margin-bottom: 40px; background: #1a1a1a; padding: 40px; border-radius: 15px; border-left: 5px solid #D32F2F; box-shadow: 0 8px 25px rgba(0,0,0,.5); transition: transform .3s ease, box-shadow .3s ease; }
+        #tekken section:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(211, 47, 47, 0.3); }
+        #tekken section h2 { margin-top: 0; font-size: 2.2rem; color: #FFD700; padding-bottom: 15px; border-bottom: 2px solid #444; font-weight: 700; }
+        #tekken ul, #tekken ol { padding-left: 25px; line-height: 1.8; font-size: 1.1rem; }
+        #tekken li { margin-bottom: 12px; }
+        #tekken strong { color: #FFD700; font-weight: 700; }
+        #tekken code { background-color: #333; color: #f0f0f0; padding: 3px 6px; border-radius: 4px; font-family: monospace; }
+        #tekken footer { padding: 30px 20px; text-align: center; background: #111; color: #aaa; border-top: 2px solid #444; }
+        #tekken .emoji-title { font-size: 2.5rem; margin-right: 15px; vertical-align: middle; }
+        @media(max-width:650px){
+            #tekken header h1{font-size:2.8rem;} #tekken header p{font-size: 1.2rem;}
+            #tekken section { padding: 25px; } #tekken section h2 { font-size: 1.8rem; }
+        }
+
+        /* --- Scoped Styles for Tetris --- */
+        #tetris {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #0d0d0d;
+            background-image: url('https://t4.ftcdn.net/jpg/05/16/98/21/360_F_516982134_z3zQOQ9eEXRjT6waxQMwBaTeiqulpsDG.jpg');
+            color: #fff;
+            line-height: 1.8;
+        }
+        #tetris header { min-height: 60vh; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; border-bottom: 8px solid #333; }
+        #tetris header h1, #tetris header p { position: relative; text-shadow: 4px 4px 0px #000; z-index: 1; }
+        #tetris header h1 { font-size: 3.5rem; margin: 0; color: #fff; }
+        #tetris .h1-t { color: #ff0000; } #tetris .h1-e { color: #ffa500; } #tetris .h1-t2 { color: #ffff00; } #tetris .h1-r { color: #008000; } #tetris .h1-i { color: #0000ff; } #tetris .h1-s { color: #800080; }
+        #tetris header p { font-size: 1.2rem; max-width: 700px; margin-top: 25px; color: #eee; }
+        #tetris .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        #tetris section { margin-bottom: 40px; background: #1a1a1a; padding: 40px; border: 4px solid #fff; box-shadow: 0 0 0 4px #1a1a1a; transition: all .3s ease; }
+        #tetris section:hover { border-color: #ffff00; }
+        #tetris section h2 { margin-top: 0; font-size: 1.8rem; color: #00ffff; padding-bottom: 15px; border-bottom: 4px dotted #444; }
+        #tetris ul, #tetris ol { padding-left: 25px; font-size: 1rem; }
+        #tetris li { margin-bottom: 15px; padding-left: 10px; }
+        #tetris strong { color: #ffff00; }
+        #tetris .platform { background-color: #333; color: #fff; padding: 5px 10px; text-decoration: none; }
+        #tetris .scoring-diagram { display: flex; justify-content: space-around; align-items: center; margin-top: 30px; flex-wrap: wrap; gap: 20px; border: 4px solid #333; padding: 20px; background-color: #0d0d0d; }
+        #tetris .diagram-column { text-align: center; width: 280px; }
+        #tetris .diagram-column h3 { font-size: 1.1rem; margin-top: 0; color: #fff; margin-bottom: 15px; }
+        #tetris .diagram-item { display: flex; justify-content: space-between; padding: 12px; margin-bottom: 8px; font-size: 1rem; }
+        #tetris .rank-1 { background-color: #ffff00; color: #000; }
+        #tetris .rank-2 { background-color: #c0c0c0; color: #000; }
+        #tetris .rank-3 { background-color: #cd7f32; color: #000; }
+        #tetris .arrow { font-size: 3rem; color: #fff; align-self: center; }
+        #tetris footer { padding: 40px 20px; text-align: center; color: #aaa; border-top: 8px solid #333; font-size: 0.9rem; }
+        @media(max-width:650px){
+            #tetris body { font-size: 14px; } #tetris header h1{font-size:2rem;} #tetris header p{font-size: 1rem;}
+            #tetris section { padding: 25px; } #tetris section h2 { font-size: 1.5rem; }
+            #tetris .scoring-diagram { flex-direction: column; } #tetris .arrow { transform: rotate(90deg); margin: 15px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-navigation">
+        <nav>
+            <a href="#dota2" class="nav-link active">Dota 2</a>
+            <a href="#cs2" class="nav-link">CS2</a>
+            <a href="#ludo" class="nav-link">Ludo</a>
+            <a href="#mobilelegends" class="nav-link">Mobile Legends</a>
+            <a href="#tekken" class="nav-link">Tekken 7</a>
+            <a href="#tetris" class="nav-link">Tetris</a>
+        </nav>
+    </header>
+
+    <main>
+        <div id="dota2" class="game-rules-page active">
+            <header>
+                <h1>Dota 2 Tournament</h1>
+                <p>The battle of the Ancients begins. Defend your legacy.</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2><span class="emoji-title">📜</span>Format Overview</h2>
+                    <ul>
+                        <li><strong>Group Stage:</strong> 4 teams will compete in an <strong>Abbreviated Round Robin</strong> format. Each team plays 2 matches total. All group stage matches are <strong>Best-of-Two (Bo2)</strong>.</li>
+                        <li><strong>Grand Final:</strong> The <strong>Top 2 teams</strong> from the group stage (ranked by points) advance to the Grand Final.</li>
+                        <li><strong>Finals Match:</strong> The Grand Final is a single <strong>Best-of-Three (Bo3)</strong> match to determine the champion.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">📊</span>Group Stage: Scoring & Schedule</h2>
+                    <p>Points are awarded after each Bo2 match as follows:</p>
+                    <ul>
+                      <li><span class="win"><strong>2-0 Victory:</strong> 3 points to the winner, 0 to the loser.</span></li>
+                      <li><span class="draw"><strong>1-1 Draw:</strong> 1 point to each team.</span></li>
+                    </ul>
+                    <h4>Example Schedule:</h4>
+                    <p>This schedule ensures each of the 4 teams plays exactly two opponents.</p>
+                    <ol>
+                        <li>Match 1: Team A vs. Team B</li>
+                        <li>Match 2: Team C vs. Team D</li>
+                        <li>Match 3: Team A vs. Team C</li>
+                        <li>Match 4: Team B vs. Team D</li>
+                    </ol>
+                  </section>
+                <section>
+                    <h2><span class="emoji-title">⚔️</span>Tournament Breakdown</h2>
+                    <table>
+                        <thead> <tr> <th>Phase</th> <th>Matches</th> <th>Games per Match</th> <th>Total Games</th> </tr> </thead>
+                        <tbody>
+                            <tr> <td>Group Stage</td> <td>4</td> <td>Bo2</td> <td>8</td> </tr>
+                            <tr> <td>Grand Final</td> <td>1</td> <td>Bo3</td> <td>2–3</td> </tr>
+                            <tr> <td><strong>TOTAL</strong></td> <td><strong>5</strong></td> <td><em>(see above)</em></td> <td><strong>10–11</strong></td> </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚖️</span>Group Stage Tiebreaker Rules</h2>
+                    <p>If teams are tied on points for a Grand Final spot, the following tiebreaker matches will be played.</p>
+                    <ul class="tiebreaker-list">
+                        <li><h4>Two-Team Tie</h4><p>If two teams are tied for a qualifying spot, they will play a single <strong>Best-of-One (Bo1)</strong> decider match. The winner qualifies.</p></li>
+                        <li><h4>Three-Team Tie (for 2 spots)</h4><p>A two-match series is played. Seeding (X, Y, Z) is determined by tiebreaker criteria (Game Differential, etc.).</p><ul><li><strong>Match 1 (Bo1):</strong> Team X vs. Team Y. <strong>Winner qualifies.</strong></li><li><strong>Match 2 (Bo1):</strong> Loser of Match 1 vs. Team Z. <strong>Winner qualifies.</strong></li></ul></li>
+                        <li><h4>Three-Team Tie (for 1 spot)</h4><p>A two-stage gauntlet is played, seeded 1, 2, and 3.</p><ul><li><strong>Match 1 (Bo1):</strong> Seed 2 vs. Seed 3. Loser is eliminated.</li><li><strong>Match 2 (Bo1):</strong> Winner of Match 1 vs. Seed 1. <strong>Winner qualifies.</strong></li></ul></li>
+                        <li><h4>Four-Team Tie (for 2 spots)</h4><p>Two simultaneous semifinal matches are played, seeded 1-4.</p><ul><li><strong>Semifinal 1 (Bo1):</strong> Seed 1 vs. Seed 4.</li><li><strong>Semifinal 2 (Bo1):</strong> Seed 2 vs. Seed 3.</li><li>The <strong>winners of both semifinals qualify</strong> for the Grand Final.</li></ul></li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h2><span class="emoji-title">⚠️</span>Administrative Notes</h2>
+                    <ul>
+                        <li>Tiebreaker matches do not alter the final group stage statistics (e.g., game differential).</li>
+                        <li>For all Bo1 tiebreakers, side choice (Radiant/Dire) or first-pick priority will be given to the team with the better tiebreaker stats. If all stats are equal, it will be decided by a coin toss.</li>
+                        <li>The tournament administration reserves the right to adjust seeding methods to fit schedule constraints, but any changes will be announced before play begins.</li>
+                    </ul>
+                  </section>
+            </div>
+            <footer> <p>For the glory of the Ancients!</p> </footer>
+        </div>
+
+        <div id="cs2" class="game-rules-page">
+            <header>
+                <h1>CS2 Tournament Rules</h1>
+                <p>Strategy, teamwork, and precision. Let the games begin.</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2><span class="emoji-title">📋</span>General Information</h2>
+                    <ul>
+                        <li><b>Participating Teams:</b> 4 teams total.</li>
+                        <li><b>Team Composition:</b> Each team consists of 5 players, with a mandatory inclusion of <strong>at least one female player</strong>.</li>
+                        <li><b>Match Format:</b> All matches are <strong>Best of 3 (BO3)</strong>.</li>
+                        <li><b>Tournament Format:</b> Double Elimination.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🔄</span>Double Elimination Format</h2>
+                    <p>This format provides every team with a second chance. No team is eliminated after a single match loss.</p>
+                    <ul>
+                        <li><b>Starting Point:</b> All teams begin in the <strong>Upper Bracket</strong>.</li>
+                        <li><b>First Loss:</b> If a team loses in the Upper Bracket, they are not eliminated. Instead, they drop down to the <strong>Lower Bracket</strong>.</li>
+                        <li><b>Second Loss:</b> If a team loses a match in the Lower Bracket, they are <strong>eliminated</strong> from the tournament.</li>
+                        <li><b>Grand Finals:</b> The tournament continues until one winner emerges from the Upper Bracket and one from the Lower Bracket to face off in the Grand Final.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🗺️</span>Official Map Pool</h2>
+                    <p>The following maps are approved for tournament play:</p>
+                    <ul class="map-list">
+                        <li>Dust 2</li> <li>Mirage</li> <li>Inferno</li> <li>Nuke</li> <li>Overpass</li> <li>Ancient</li> <li>Train</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚖️</span>Map Veto Process (BO3)</h2>
+                    <p>Before each match, teams will perform a map veto to determine the three maps that will be played. The process is as follows:</p>
+                    <ol>
+                        <li class="veto-step"><span class="teamA">Team A</span> bans a map.</li>
+                        <li class="veto-step"><span class="teamB">Team B</span> bans a map.</li>
+                        <li class="veto-step"><span class="teamA">Team A</span> picks their map.</li>
+                        <li class="veto-step"><span class="teamB">Team B</span> picks their map.</li>
+                        <li class="veto-step"><span class="teamA">Team A</span> bans a map.</li>
+                        <li class="veto-step"><span class="teamB">Team B</span> bans a map.</li>
+                        <li class="veto-step">The <strong>last remaining map</strong> is automatically assigned as the Decider map.</li>
+                    </ol>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚔️</span>Side Selection Rules</h2>
+                    <ul>
+                        <li>For the first two maps, the team that <strong>did not</strong> pick the map gets to choose their starting side (CT or T).</li>
+                        <li>For the final <strong>Decider map</strong>, a <strong>knife round</strong> will be played. The winner of the knife round chooses their starting side.</li>
+                    </ul>
+                </section>
+            </div>
+            <footer> <p>GLHF! May the best team win.</p> </footer>
+        </div>
+
+        <div id="ludo" class="game-rules-page">
+            <header>
+                <h1>🏆 LUDO World Team Tournament 🏆</h1>
+                <p>The ultimate team showdown of strategy, luck, and power-ups!</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2><span class="emoji-title">🎲</span>What is Ludo?</h2>
+                    <p>Ludo is a classic strategy board game where players race their four tokens from their starting point to the center "home" triangle. Moves are determined by the roll of a single die. The objective is to be the first to get all four of your tokens home. In Team Up mode, you'll work with your partner to secure victory together!</p>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚡</span>Power Mode Explained</h2>
+                    <p>Power Mode adds an extra layer of strategy with special items you can use to gain an advantage:</p>
+                    <ul>
+                        <li><b>Double Distance:</b> Doubles the value of your next dice roll.</li>
+                        <li><b>Dice Control:</b> Allows you to choose the exact number you want on the die.</li>
+                        <li><b>Protection Shield:</b> Protects your token from being captured for one turn.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🔄</span>Tournament Format: Round Robin</h2>
+                    <p>In this format, every team will play against every other team once. With 4 teams participating, a total of 6 games will be played. This ensures a fair competition where the final standings are based on overall performance across all matches. All matches will be played on a Phone or Notebook in <b>LUDO World's 2v2 (Team Up) Power Mode</b>.</p>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🧑‍🤝‍🧑</span>Team Composition</h2>
+                    <p>Each team must consist of 2 players: <b>one girl</b> and <b>one boy</b>.</p>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🏅</span>Scoring System</h2>
+                    <p>Points are awarded **after each game** based on the team's placement in that game. The final tournament ranking is determined by the **sum of points from all games** (each team plays 3 games). Here’s how points are awarded for a **single game**:</p>
+                    <div class="scoring-diagram">
+                        <div class="diagram-column"><h3>Example: Results of ALL Game</h3><div class="diagram-item rank-1"><span>1st Place</span><span>Team A</span></div><div class="diagram-item rank-2"><span>2nd Place</span><span>Team B</span></div><div class="diagram-item rank-etc"><span>3rd Place</span><span>Team C</span></div><div class="diagram-item rank-etc"><span>4th Place</span><span>Team D</span></div></div>
+                        <div class="arrow">→</div>
+                        <div class="diagram-column"><h3>Points Awarded</h3><div class="diagram-item rank-1"><span>Team A</span><span>+ 4 points</span></div><div class="diagram-item rank-2"><span>Team B</span><span>+ 2 points</span></div><div class="diagram-item rank-etc"><span>Team C</span><span>+ 0 points</span></div><div class="diagram-item rank-etc"><span>Team D</span><span>+ 0 points</span></div></div>
+                    </div>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚠️</span>Important Reminders</h2>
+                    <ul>
+                        <li>Please bring your own <b>phone or notebook and a charger</b>.</li>
+                        <li>Ensure you have a stable internet connection or your own mobile data prepared, as Wi-Fi may be unreliable.</li>
+                        <li>Most importantly, let's have fun and enjoy the games!</li>
+                    </ul>
+                </section>
+            </div>
+            <footer> <p>Let's have fun and enjoy the games! ❤️</p> </footer>
+        </div>
+        
+        <div id="mobilelegends" class="game-rules-page">
+            <header>
+                <h1>Mobile Legends Tournament</h1>
+                <p>Welcome to the Land of Dawn. Victory awaits the worthy.</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2><span class="emoji-title">⚔️</span>Tournament Overview</h2>
+                    <ul>
+                        <li><b>Participating Teams:</b> 4 Teams</li>
+                        <li><b>Format:</b> Double Elimination</li>
+                        <li><b>Match Structure:</b> All matches are <strong>Best-of-Three (Bo3)</strong>.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🔁</span>What is Double Elimination?</h2>
+                    <p>In this format, a team is only eliminated after losing two matches. This ensures every team has a second chance before being knocked out of the tournament.</p>
+                    <ul>
+                        <li>All teams start in the <strong>Upper Bracket</strong>.</li>
+                        <li>A team that loses a match moves to the <strong>Lower Bracket</strong>.</li>
+                        <li>A second loss (a loss in the Lower Bracket) results in <strong>elimination</strong>.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🏆</span>Scoring System</h2>
+                    <p>Points are awarded only to the top two teams at the conclusion of the tournament:</p>
+                    <ul class="scoring-list">
+                        <li class="rank-1"><strong>1st Place:</strong> 8 points</li>
+                        <li class="rank-2"><strong>2nd Place:</strong> 4 points</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">⚠️</span>Important Reminders</h2>
+                    <ul>
+                        <li>Please bring your own <strong>phone and a charger</strong>. Ensure your device is fully charged before the tournament begins.</li>
+                        <li>Make sure you have a stable internet connection with your own <strong>mobile data</strong> prepared. Office Wi-Fi may be slow or unreliable during the event.</li>
+                        <li>Most importantly, let's play with sportsmanship and have fun!</li>
+                    </ul>
+                </section>
+            </div>
+            <footer> <p>May your blades be sharp and your magic true. See you in the arena!</p> </footer>
+        </div>
+
+        <div id="tekken" class="game-rules-page">
+            <header>
+                <h1>The King of Iron Fist Tournament</h1>
+                <p>Prepare for the next battle. The ultimate test of skill and fighting spirit awaits.</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2><span class="emoji-title">🏆</span>Tournament Structure</h2>
+                    <ul>
+                        <li><b>Total Players:</b> 16</li>
+                        <li><b>Format:</b> 1 vs 1 (Individual)</li>
+                        <li><b>Bracket Style:</b> Double Elimination</li>
+                        <li><b>Match Format:</b> All matches leading to the Grand Final will be <strong>Best of 3 Games (BO3)</strong>.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">📜</span>Core Rules</h2>
+                    <ol>
+                        <li><strong>Character Lock:</strong> Each player must select <strong>one character</strong> for the entire tournament. You cannot switch characters between matches or games. Choose wisely!</li>
+                        <li><strong>Side Selection:</strong> Players may mutually agree on who sits on the 1P or 2P side. If no agreement can be reached, a coin toss will determine the sides.</li>
+                        <li><strong>Punctuality:</strong> Be present at your station when your match is called. Failure to appear within 5 minutes may result in a forfeit of the match.</li>
+                    </ol>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">🔄</span>Double Elimination Explained</h2>
+                    <p>This format ensures every player gets a second chance. No one is eliminated after a single loss.</p>
+                    <ul>
+                        <li><b>Two Lives:</b> Every player starts in the <strong>Winners Bracket</strong>. If you lose a match, you drop to the <strong>Losers Bracket</strong>.</li>
+                        <li><b>Elimination:</b> If you lose a match while in the Losers Bracket, you are eliminated from the tournament.</li>
+                        <li><b>Two Paths to Glory:</b> The tournament proceeds until one player remains in the Winners Bracket (the "Winners Finalist") and one player remains in the Losers Bracket (the "Losers Finalist").</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2><span class="emoji-title">👑</span>The Grand Final</h2>
+                    <p>The Grand Final is the ultimate showdown between the Winners Finalist and the Losers Finalist. This match is <strong>Best of 5 Games (BO5)</strong>.</p>
+                    <ul>
+                        <li>The player from the <strong>Winners Bracket</strong> only needs to win <strong>one set (BO5)</strong> to be crowned the champion.</li>
+                        <li>The player from the <strong>Losers Bracket</strong> must win <strong>two consecutive sets (BO5)</strong> to become the champion. This is known as a <code>Bracket Reset</code>.</li>
+                        <li><strong>Why the Bracket Reset?</strong> The Winners Finalist has not lost a match yet. To be eliminated, they must be defeated twice. If the Losers Finalist wins the first BO5 set, the bracket is "reset," and both players effectively have one "loss." A final, decisive BO5 set is then played to determine the true King of the Iron Fist.</li>
+                    </ul>
+                </section>
+            </div>
+            <footer> <p>Good luck, fighters. Show us your strength!</p> </footer>
+        </div>
+
+        <div id="tetris" class="game-rules-page">
+            <header>
+                <h1>
+                    <span class="h1-t">T</span><span class="h1-e">E</span><span class="h1-t2">T</span><span class="h1-r">R</span><span class="h1-i">I</span><span class="h1-s">S</span>
+                </h1>
+                <p>Line up your blocks and clear your path to victory!</p>
+            </header>
+            <div class="container">
+                <section>
+                    <h2>TOURNAMENT OVERVIEW</h2>
+                    <ul>
+                        <li><strong>Platform:</strong> All matches will be played on <a href="https://tetr.io/" target="_blank" class="platform">TETR.IO</a>.</li>
+                        <li><strong>Game Mode:</strong> 1v1 VS Mode.</li>
+                        <li><strong>Match Format:</strong> All matches are <strong>Best of 5</strong> (first to 3 wins).</li>
+                        <li><strong>Team Composition:</strong> Each team must have 4 members (2 male, 2 female).</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>STRUCTURE & FORMAT</h2>
+                    <p>The tournament is divided into two separate brackets:</p>
+                    <ol>
+                        <li>A <strong>Men's Bracket</strong> with all male participants.</li>
+                        <li>A <strong>Women's Bracket</strong> with all female participants.</li>
+                    </ol>
+                    <p>Both brackets will be played using the <strong>Double Elimination</strong> format. A player is only eliminated after two match losses.</p>
+                </section>
+                <section>
+                    <h2>TEAM SCORING SYSTEM</h2>
+                    <p>Individual performance contributes to a total team score. Points are awarded based on the final rankings in each of the two brackets (Men's and Women's).</p>
+                    <div class="scoring-diagram">
+                        <div class="diagram-column"><h3>Individual Placement</h3><div class="diagram-item rank-1"><span>1st Place</span></div><div class="diagram-item rank-2"><span>2nd Place</span></div><div class="diagram-item rank-3"><span>3rd Place</span></div></div>
+                        <div class="arrow">→</div>
+                        <div class="diagram-column"><h3>Points for Team</h3><div class="diagram-item rank-1"><span>+ 5 points</span></div><div class="diagram-item rank-2"><span>+ 3 points</span></div><div class="diagram-item rank-3"><span>+ 1 point</span></div></div>
+                    </div>
+                    <p style="text-align: center; margin-top: 20px;">The team with the highest combined score from all four members wins the tournament.</p>
+                </section>
+                <section>
+                    <h2>TIE-BREAKER RULE</h2>
+                    <p>In the event of a tie in total team points, the winning team will be decided by the <strong>cumulative match win/loss record</strong> of all members of the tied teams. The team with the better overall record will be declared the winner.</p>
+                </section>
+            </div>
+            <footer> <p>GAME OVER</p> </footer>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.game-rules-page');
+
+            function switchPage(targetId) {
+                // Hide all pages
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Deactivate all nav links
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                // Activate the target page and link
+                const targetPage = document.querySelector(targetId);
+                const activeLink = document.querySelector(`a[href="${targetId}"]`);
+                
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    switchPage(targetId);
+                    window.scrollTo(0, 0); // Scroll to top on page change
+                });
+            });
+
+            // Set initial page
+            switchPage('#dota2');
+        });
+    </script>
+</body>
+</html>
